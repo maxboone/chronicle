@@ -11,7 +11,7 @@ services:
     restart: always
     depends_on:
       - store
-    build: ./store
+    build: ./site
     env_file: development.env
     ports:
       - 5173:5173
@@ -19,10 +19,10 @@ services:
       watch:
         - action: sync
           x-initialSync: true
-          path: ./store/src
+          path: ./site/src
           target: /app/src
         - action: rebuild
-          path: ./store/bun.lockb
+          path: ./site/bun.lockb
   store:
     restart: always
     depends_on:

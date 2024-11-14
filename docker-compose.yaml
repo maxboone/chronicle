@@ -1,0 +1,45 @@
+name: chronicle_development
+services:
+  postgresql:
+    image: bitnami/postgresql
+    env_file: development.env
+    volumes:
+      - pgsql-data:/bitnami/postgresql
+    ports:
+      - 5432:5432
+  site:
+    restart: always
+    depends_on:
+      - store
+    build: ./store
+    env_file: development.env
+    ports:
+      - 5173:5173
+    develop:
+      watch:
+        - action: sync
+          x-initialSync: true
+          path: ./store/src
+          target: /app/src
+        - action: rebuild
+          path: ./store/bun.lockb
+  store:
+    restart: always
+    depends_on:
+      - postgresql
+    build: ./store
+    env_file: development.env
+    environment:
+      DEBUG: "True"
+    develop:
+      watch:
+        - action: sync
+          x-initialSync: true
+          path: ./store/store
+          target: /usr/src/store
+        - action: rebuild
+          path: ./store/poetry.lock
+    ports:
+      - 8000:8000
+volumes:
+  pgsql-data:
